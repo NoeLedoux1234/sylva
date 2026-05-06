@@ -109,6 +109,7 @@ export const useTaxa = (query: string): UseTaxaReturn => {
         setState((prev) => ({
           ...prev,
           loading: false,
+          hasMore: false,
           error: extractErrorMessage(err),
         }));
       });
