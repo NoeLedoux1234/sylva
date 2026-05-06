@@ -1,35 +1,23 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import { Tabs } from "expo-router";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { SylvaTabBar } from "@/components/feature/SylvaTabBar";
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+const renderTabBar = (props: BottomTabBarProps) => <SylvaTabBar {...props} />;
 
+const TabsLayout = () => {
   return (
     <Tabs
+      tabBar={renderTabBar}
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
+        sceneStyle: { backgroundColor: "#050706" },
+      }}
+    >
+      <Tabs.Screen name="index" options={{ title: "Discover" }} />
+      <Tabs.Screen name="herbier" options={{ title: "Herbier" }} />
     </Tabs>
   );
-}
+};
+
+export default TabsLayout;
