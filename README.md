@@ -1,50 +1,53 @@
-# Welcome to your Expo app 👋
+# Sylva
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A nature-immersive React Native app to explore the wild flora and fauna of the world. Browse species, search through the iNaturalist taxonomy, dive into rich detail sheets, and curate your personal **Herbier** of favorites — all wrapped in looping nature footage and glass-morphism surfaces.
 
-## Get started
+> Functional minimalism, sensorial maximalism.
 
-1. Install dependencies
+## Stack
 
-   ```bash
-   npm install
-   ```
+- Expo SDK 54 · expo-router v6 · TypeScript strict
+- NativeWind v4 · Tailwind v3
+- react-native-reanimated v4 · react-native-gesture-handler v2
+- expo-video · expo-blur · expo-image
+- AsyncStorage · iNaturalist API
 
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting started
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Open in iOS Simulator (`i`), Android Emulator (`a`) or scan the QR code with **Expo Go**.
 
-## Learn more
+## Scripts
 
-To learn more about developing your project with Expo, look at the following resources:
+| script | purpose |
+| --- | --- |
+| `npm start` | start expo dev server |
+| `npm run ios` / `npm run android` | open in a simulator |
+| `npm run lint` | run expo-lint |
+| `npm run typecheck` | strict tsc no-emit |
+| `npm run release` | bump version + tag (run from `main`) |
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Conventions
 
-## Join the community
+Code style, folder structure, design tokens and the agent workflow are documented in [`CLAUDE.md`](./CLAUDE.md).
 
-Join our community of developers creating universal apps.
+## Architecture (TL;DR)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- `app/` — expo-router file-based screens
+- `components/primitives/` — atomic UI (LiquidGlassButton, GlassCard…)
+- `components/feature/` — composed feature blocks (FeatureCard, HeroGrid…)
+- `components/species/` — species-specific blocks
+- `hooks/` — `useTaxa`, `useTaxon`, `useFavorites`, `useDebounce`
+- `store/` — `FavoritesProvider` (useReducer + Context + AsyncStorage)
+- `lib/api.ts` — iNaturalist fetch helpers
+
+## Git
+
+- Default branch: `develop`
+- Feature branches: `feat/<scope>` → PR → `develop`
+- Final release: `develop` → `main` → `npm run release`
+- Conventional commits enforced (commitlint + husky)
