@@ -1,7 +1,9 @@
+import { useLocalSearchParams } from "expo-router";
 import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const DiscoverScreen = () => {
+const SpeciesDetail = () => {
+  const { id } = useLocalSearchParams<{ id: string }>();
   return (
     <SafeAreaView className="flex-1 bg-ink-deep">
       <View className="flex-1 items-center justify-center">
@@ -9,11 +11,11 @@ const DiscoverScreen = () => {
           className="text-bone text-xl"
           style={{ fontFamily: "Helvetica Neue" }}
         >
-          Discover
+          Species #{id}
         </Text>
       </View>
     </SafeAreaView>
   );
 };
 
-export default DiscoverScreen;
+export default SpeciesDetail;

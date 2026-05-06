@@ -1,5 +1,4 @@
 import type { BlurTint } from "expo-blur";
-import { Platform } from "react-native";
 
 const palette = {
   inkDeep: "#050706",
@@ -23,52 +22,12 @@ const palette = {
   glassTint: "rgba(255,255,255,0.04)",
   glassStroke: "rgba(255,255,255,0.18)",
   glassStrokeBright: "rgba(255,255,255,0.45)",
+  white: "#FFFFFF",
+  textMuted: "rgba(255,255,255,0.55)",
+  surfaceActive: "rgba(255,255,255,0.10)",
 } as const;
 
-const themeScheme = {
-  light: {
-    text: "#11181C",
-    background: "#FFFFFF",
-    tint: "#0A7EA4",
-    icon: "#687076",
-    tabIconDefault: "#687076",
-    tabIconSelected: "#0A7EA4",
-  },
-  dark: {
-    text: palette.bone,
-    background: palette.inkDeep,
-    tint: palette.moss300,
-    icon: palette.boneDim,
-    tabIconDefault: palette.boneDim,
-    tabIconSelected: palette.moss300,
-  },
-} as const;
-
-export const Colors = {
-  ...palette,
-  ...themeScheme,
-};
-
-export const Fonts = Platform.select({
-  ios: {
-    sans: "Helvetica Neue",
-    serif: "ui-serif",
-    rounded: "ui-rounded",
-    mono: "ui-monospace",
-  },
-  default: {
-    sans: "normal",
-    serif: "serif",
-    rounded: "normal",
-    mono: "monospace",
-  },
-  web: {
-    sans: "Helvetica Neue, Helvetica, Arial, sans-serif",
-    serif: "Georgia, 'Times New Roman', serif",
-    rounded: "'SF Pro Rounded', sans-serif",
-    mono: "SFMono-Regular, Menlo, Monaco, monospace",
-  },
-});
+export const Colors = palette;
 
 export const Type = {
   fontDisplay: "Helvetica Neue",
