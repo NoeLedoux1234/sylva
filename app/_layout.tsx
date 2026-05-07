@@ -34,6 +34,8 @@ const RootLayout = () => {
             }}
           >
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="collections/[slug]" />
+            <Stack.Screen name="search" />
             <Stack.Screen name="species/[id]" />
           </Stack>
           {!splashDone ? <SylvaSplash onFinish={handleSplashFinish} /> : null}

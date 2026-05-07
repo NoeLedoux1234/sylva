@@ -18,6 +18,7 @@ type LiquidGlassButtonProps = {
   size?: LiquidGlassButtonSize;
   fullWidth?: boolean;
   icon?: ReactNode;
+  trailingIcon?: ReactNode;
 };
 
 const sizePadding: Record<LiquidGlassButtonSize, string> = {
@@ -36,6 +37,7 @@ export const LiquidGlassButton = ({
   size = "md",
   fullWidth = false,
   icon,
+  trailingIcon,
 }: LiquidGlassButtonProps) => {
   const scale = useSharedValue(1);
 
@@ -91,6 +93,7 @@ export const LiquidGlassButton = ({
           >
             {children}
           </Text>
+          {trailingIcon ? <View>{trailingIcon}</View> : null}
         </View>
       </Pressable>
     </Animated.View>
