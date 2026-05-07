@@ -25,6 +25,9 @@ const palette = {
   white: "#FFFFFF",
   textMuted: "rgba(255,255,255,0.55)",
   surfaceActive: "rgba(255,255,255,0.10)",
+  destructiveBg: "rgba(255, 80, 80, 0.18)",
+  destructiveBorder: "rgba(255, 80, 80, 0.35)",
+  destructiveIcon: "rgb(255, 120, 120)",
 } as const;
 
 export const Colors = palette;
