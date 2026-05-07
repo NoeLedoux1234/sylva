@@ -2,10 +2,12 @@ import "../global.css";
 
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useCallback, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import "react-native-reanimated";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { SylvaSplash } from "@/components/feature/SylvaSplash";
 import { FavoritesProvider } from "@/store/favorites-context";
 
 export const unstable_settings = {
@@ -13,11 +15,17 @@ export const unstable_settings = {
 };
 
 const RootLayout = () => {
+  const [splashDone, setSplashDone] = useState(false);
+
+  const handleSplashFinish = useCallback(() => {
+    setSplashDone(true);
+  }, []);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <FavoritesProvider>
-          <StatusBar style="light" />
+          <StatusBar style="light" backgroundColor="#050706" />
           <Stack
             screenOptions={{
               headerShown: false,
@@ -28,6 +36,7 @@ const RootLayout = () => {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="species/[id]" />
           </Stack>
+          {!splashDone ? <SylvaSplash onFinish={handleSplashFinish} /> : null}
         </FavoritesProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

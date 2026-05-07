@@ -1,5 +1,10 @@
 import { memo } from "react";
 import { Text, View } from "react-native";
+import Animated, {
+  interpolate,
+  type SharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 
 import { FeatureCard } from "@/components/feature/FeatureCard";
 import { HeadlineStack } from "@/components/feature/HeadlineStack";
@@ -8,25 +13,39 @@ import { Videos, VideoKey } from "@/constants/videos";
 
 type HeroGridProps = {
   onFocusSearchPress?: () => void;
+  scrollY?: SharedValue<number>;
 };
 
-const HeroGridComponent = ({ onFocusSearchPress }: HeroGridProps) => {
+const HeroGridComponent = ({ onFocusSearchPress, scrollY }: HeroGridProps) => {
+  const animatedHeroStyle = useAnimatedStyle(() => {
+    if (!scrollY) {
+      return { opacity: 1, transform: [{ translateY: 0 }] };
+    }
+    const value = scrollY.value;
+    return {
+      opacity: interpolate(value, [0, 140], [1, 0], "clamp"),
+      transform: [{ translateY: Math.min(0, -value * 0.25) }],
+    };
+  });
+
   return (
     <View className="px-5 pt-6 pb-4">
-      <View className="h-px w-10 bg-white/30" />
-      <Text
-        className="mt-3 text-[10px] uppercase text-white/55"
-        style={{ fontFamily: "Helvetica Neue", letterSpacing: 3 }}
-      >
-        Sylva — Atlas of the wild
-      </Text>
+      <Animated.View style={animatedHeroStyle}>
+        <View className="h-px w-10 bg-white/30" />
+        <Text
+          className="mt-3 text-[10px] uppercase text-white/55"
+          style={{ fontFamily: "Helvetica Neue", letterSpacing: 3 }}
+        >
+          Sylva — Atlas of the wild
+        </Text>
 
-      <View className="mt-4">
-        <HeadlineStack
-          line1="Discover the wild."
-          line2="From canopy to roots."
-        />
-      </View>
+        <View className="mt-4">
+          <HeadlineStack
+            line1="Discover the wild."
+            line2="From canopy to roots."
+          />
+        </View>
+      </Animated.View>
 
       <View className="mt-6 gap-4">
         <FeatureCard
