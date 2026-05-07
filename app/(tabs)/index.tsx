@@ -1,98 +1,199 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from "expo-router";
+import { useCallback, useMemo, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  type ListRenderItem,
+  RefreshControl,
+  Text,
+  View,
+} from "react-native";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import {
+  DiscoverSearchBar,
+  type DiscoverSearchBarHandle,
+} from "@/components/feature/DiscoverSearchBar";
+import { DiscoverStatusRow } from "@/components/feature/DiscoverStatusRow";
+import { HeroGrid } from "@/components/feature/HeroGrid";
+import { GlassCard } from "@/components/primitives/GlassCard";
+import { LiquidGlassButton } from "@/components/primitives/LiquidGlassButton";
+import { SpeciesRow } from "@/components/species/SpeciesRow";
+import { SpeciesRowSkeleton } from "@/components/species/SpeciesRowSkeleton";
+import { Colors } from "@/constants/theme";
+import { useTaxa } from "@/hooks/useTaxa";
+import type { TaxonSummary } from "@/types/taxon";
 
-export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+const SKELETON_KEYS: number[] = [0, 1, 2, 3, 4, 5];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+const DiscoverScreen = () => {
+  const router = useRouter();
+  const inputRef = useRef<DiscoverSearchBarHandle>(null);
+  const [debouncedQuery, setDebouncedQuery] = useState<string>("");
+
+  const taxa = useTaxa(debouncedQuery);
+
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  const handleFocusSearch = useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const handleDebouncedChange = useCallback((value: string) => {
+    setDebouncedQuery(value);
+  }, []);
+
+  const handlePressItem = useCallback(
+    (id: number) => {
+      router.push(`/species/${id}`);
+    },
+    [router],
   );
-}
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+  const handleClearSearch = useCallback(() => {
+    inputRef.current?.reset();
+    inputRef.current?.focus();
+  }, []);
+
+  const renderItem = useCallback<ListRenderItem<TaxonSummary>>(
+    ({ item }) => <SpeciesRow item={item} onPressItem={handlePressItem} />,
+    [handlePressItem],
+  );
+
+  const keyExtractor = useCallback(
+    (item: TaxonSummary) => String(item.id),
+    [],
+  );
+
+  const hasQuery = debouncedQuery.trim().length > 0;
+  const showInitialSkeletons =
+    taxa.loading && taxa.results.length === 0 && !taxa.refreshing;
+
+  const ListHeader = useCallback(
+    () => (
+      <View>
+        <HeroGrid onFocusSearchPress={handleFocusSearch} scrollY={scrollY} />
+        <DiscoverSearchBar
+          ref={inputRef}
+          onDebouncedChange={handleDebouncedChange}
+        />
+        <DiscoverStatusRow
+          loading={taxa.loading}
+          error={taxa.error}
+          totalResults={taxa.totalResults}
+          hasQuery={hasQuery}
+        />
+      </View>
+    ),
+    [
+      handleFocusSearch,
+      handleDebouncedChange,
+      taxa.loading,
+      taxa.error,
+      taxa.totalResults,
+      hasQuery,
+      scrollY,
+    ],
+  );
+
+  const ListFooter = useMemo(() => {
+    if (showInitialSkeletons) return null;
+    if (taxa.loading && taxa.results.length > 0) {
+      return (
+        <View className="py-6 items-center">
+          <ActivityIndicator color={Colors.moss300} />
+        </View>
+      );
+    }
+    return <View className="h-24" />;
+  }, [showInitialSkeletons, taxa.loading, taxa.results.length]);
+
+  const ListEmpty = useMemo(() => {
+    if (showInitialSkeletons) {
+      return (
+        <View>
+          {SKELETON_KEYS.map((key) => (
+            <SpeciesRowSkeleton
+              key={key}
+              primaryWidth={140 + (key % 3) * 30}
+              secondaryWidth={90 + (key % 4) * 20}
+            />
+          ))}
+        </View>
+      );
+    }
+    if (taxa.loading) return null;
+    if (!hasQuery) return null;
+    return (
+      <View className="px-5 py-8">
+        <GlassCard rounded="card">
+          <View className="p-7 items-start gap-4">
+            <Text
+              className="text-bone text-xl font-medium tracking-tight"
+              style={{ fontFamily: "Helvetica Neue" }}
+            >
+              No species found
+            </Text>
+            <Text
+              className="text-white/60 text-sm"
+              style={{ fontFamily: "Helvetica Neue", lineHeight: 20 }}
+            >
+              Try a different name, family, or common term. The wild keeps
+              countless secrets — keep searching.
+            </Text>
+            <LiquidGlassButton size="sm" onPress={handleClearSearch}>
+              Clear search
+            </LiquidGlassButton>
+          </View>
+        </GlassCard>
+      </View>
+    );
+  }, [showInitialSkeletons, taxa.loading, hasQuery, handleClearSearch]);
+
+  const refreshControl = useMemo(
+    () => (
+      <RefreshControl
+        refreshing={taxa.refreshing}
+        onRefresh={taxa.refresh}
+        tintColor={Colors.moss300}
+      />
+    ),
+    [taxa.refreshing, taxa.refresh],
+  );
+
+  return (
+    <SafeAreaView className="flex-1 bg-ink-deep" edges={["top"]}>
+      <Animated.FlatList
+        data={taxa.results}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListHeaderComponent={ListHeader}
+        ListFooterComponent={ListFooter}
+        ListEmptyComponent={ListEmpty}
+        onEndReached={taxa.loadMore}
+        onEndReachedThreshold={0.5}
+        refreshControl={refreshControl}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+        removeClippedSubviews
+        initialNumToRender={10}
+        windowSize={10}
+        maxToRenderPerBatch={10}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
+        contentContainerStyle={{ paddingBottom: 24 }}
+      />
+    </SafeAreaView>
+  );
+};
+
+export default DiscoverScreen;
