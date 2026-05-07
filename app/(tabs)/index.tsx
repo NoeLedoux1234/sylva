@@ -2,12 +2,15 @@ import { useRouter } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   type ListRenderItem,
   RefreshControl,
   Text,
   View,
 } from "react-native";
+import Animated, {
+  useAnimatedScrollHandler,
+  useSharedValue,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import {
@@ -32,6 +35,13 @@ const DiscoverScreen = () => {
   const [debouncedQuery, setDebouncedQuery] = useState<string>("");
 
   const taxa = useTaxa(debouncedQuery);
+
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
 
   const handleFocusSearch = useCallback(() => {
     inputRef.current?.focus();
@@ -70,7 +80,7 @@ const DiscoverScreen = () => {
   const ListHeader = useCallback(
     () => (
       <View>
-        <HeroGrid onFocusSearchPress={handleFocusSearch} />
+        <HeroGrid onFocusSearchPress={handleFocusSearch} scrollY={scrollY} />
         <DiscoverSearchBar
           ref={inputRef}
           onDebouncedChange={handleDebouncedChange}
@@ -90,6 +100,7 @@ const DiscoverScreen = () => {
       taxa.error,
       taxa.totalResults,
       hasQuery,
+      scrollY,
     ],
   );
 
@@ -160,7 +171,7 @@ const DiscoverScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-ink-deep" edges={["top"]}>
-      <FlatList
+      <Animated.FlatList
         data={taxa.results}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
@@ -177,6 +188,8 @@ const DiscoverScreen = () => {
         windowSize={10}
         maxToRenderPerBatch={10}
         showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: 24 }}
       />
     </SafeAreaView>
