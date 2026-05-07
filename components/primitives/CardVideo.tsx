@@ -1,5 +1,4 @@
 import { useVideoPlayer, VideoView } from "expo-video";
-import { useEffect } from "react";
 import { View } from "react-native";
 
 type CardVideoProps = {
@@ -14,13 +13,6 @@ export const CardVideo = ({ source, opacity = 1, tint = 0.25 }: CardVideoProps) 
     instance.muted = true;
     instance.play();
   });
-
-  useEffect(() => {
-    return () => {
-      player.pause();
-      player.release();
-    };
-  }, [player]);
 
   return (
     <View className="absolute inset-0" style={{ opacity }}>
